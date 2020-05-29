@@ -1,8 +1,16 @@
 <div class="row">
     <div class="col-md-5">
-        <app-recipe-list></app-recipe-list>
+        <app-recipe-list 
+        (recipeWasSelected)="onRecipeWasSelected($event)"></app-recipe-list>
     </div>
     <div class="col-md-7">
-        <app-recipe-detail></app-recipe-detail>
+        <app-recipe-detail
+            *ngIf="selectedRecipe; else infoText"
+            [recipe]="selectedRecipe"></app-recipe-detail>
+        <!--define ng-template if selectedRecipe is not defined so user
+        has not selected any yet. -->
+        <ng-template #infoText>
+            <p>Please select a Recipe!</p>
+        </ng-template>
     </div>
 </div>
