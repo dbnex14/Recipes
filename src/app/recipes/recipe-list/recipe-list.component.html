@@ -6,8 +6,7 @@
 <hr>
 <div class="col-md-12">
     <app-recipe-item *ngFor="let recipeElement of recipes"
-    [recipe]="recipeElement"
-    (recipeSelected)="onRecipeSelected(recipeElement)"></app-recipe-item>
+    [recipe]="recipeElement"></app-recipe-item>
 </div>
 <!-- 
 Note that for the above image, we could use both
