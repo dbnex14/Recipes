@@ -1,7 +1,9 @@
 import { Recipe } from './recipe.model';
-import { EventEmitter } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import { Ingredient } from '../shared/ingredient.model';
+import { ShoppingListService } from '../shopping-list/shopping-list.service';
 
+@Injectable()
 export class RecipeService {
     recipeSelected = new EventEmitter<Recipe>();
 
@@ -28,9 +30,18 @@ export class RecipeService {
                 new Ingredient('Olive Oil', 1)
             ]
         )
-      ];
+    ];
 
-  getRecipes() {
-    return this.recipes.slice();
-  }
+    constructor(private slService: ShoppingListService) { }
+
+    getRecipes() {
+        return this.recipes.slice();
+    }
+
+    addIngredientsToShoppingList(ingredients: Ingredient[]) {
+        // so we pass ingredients from recipe-detail and now we need to
+        // pass them to shopping-list service; hence, we make this service
+        // injectable so we can inject shopping-list service.
+        this.slService.addIngredients(ingredients);
+    }
 }

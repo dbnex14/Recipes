@@ -22,4 +22,19 @@ export class ShoppingListService {
         // ingredients slice from getIngredients() above.
         this.ingredientChanged.emit(this.ingredients.slice());
     }
+
+    addIngredients(ingredients: Ingredient[]) {
+        // while looping to add ingredients is viable, it would 
+        // emit lots of events so we add all ingredients in one go
+        // and then emit one event.  Note use of spread operator ...
+        // to push elements of one array into another array as
+        // opposed to looping and pushing one-by-one.
+        this.ingredients.push(...ingredients);
+        // for (let ingredient of ingredients) {
+        //     this.addIngredient(ingredient);
+        // }
+
+        // finally emit single event by emitting copy of updated array
+        this.ingredientChanged.emit(this.ingredients.slice());
+    }
 }
