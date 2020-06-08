@@ -3,8 +3,12 @@
 <div class="container">
   <div class="row">
     <div class="col-md-12">
-      <app-recipes *ngIf="loadedFeature === 'recipe'"></app-recipes>
-      <app-shopping-list *ngIf="loadedFeature !== 'recipe'"></app-shopping-list>
+      <!-- Here we use ngIf to load our features but with intro of routers,
+      we now can comment that out and add <router-outlet> instead to mark the
+      place for Angular where to render our routes. -->
+      <router-outlet></router-outlet>
+      <!-- <app-recipes *ngIf="loadedFeature === 'recipe'"></app-recipes>
+      <app-shopping-list *ngIf="loadedFeature !== 'recipe'"></app-shopping-list> -->
     </div>
   </div>
 </div>
