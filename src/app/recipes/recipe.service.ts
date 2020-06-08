@@ -38,6 +38,17 @@ export class RecipeService {
         return this.recipes.slice();
     }
 
+    getRecipe(id: number) {
+        return this.recipes[id];
+        // we could also use slice since that will give us the copy of 
+        // the recipe array but in this case, it will not be a deep copy
+        // so the objects will still be references, so we can just return
+        // the object like above without slice to return direct object.
+        // We could have also created a copy of the object by assinging
+        // this to another variable but we did not do that.
+        //return this.recipes.slice()['id'];
+    }
+
     addIngredientsToShoppingList(ingredients: Ingredient[]) {
         // so we pass ingredients from recipe-detail and now we need to
         // pass them to shopping-list service; hence, we make this service

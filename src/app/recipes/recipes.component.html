@@ -3,13 +3,18 @@
         <app-recipe-list></app-recipe-list>
     </div>
     <div class="col-md-7">
-        <app-recipe-detail
+        <!--now that we defined children paths in app-routing.module to show
+        RecipeStartcomponent inside RecipesComponent, adding <router-outlet> is
+        all what is needed to display this child route in this compoment. -->
+        <router-outlet></router-outlet>
+        <!-- below is routing using ngIf, we replace that with <router-outlet> -->
+        <!-- <app-recipe-detail
             *ngIf="selectedRecipe; else infoText"
             [recipe]="selectedRecipe"></app-recipe-detail>
         <!--define ng-template if selectedRecipe is not defined so user
         has not selected any yet. -->
-        <ng-template #infoText>
+        <!-- <ng-template #infoText>
             <p>Please select a Recipe!</p>
-        </ng-template>
+        </ng-template> -->
     </div>
 </div>

@@ -1,6 +1,7 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Recipe } from '../recipe.model';
 import { RecipeService } from '../recipe.service';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 
 @Component({
   selector: 'app-recipe-detail',
@@ -8,11 +9,34 @@ import { RecipeService } from '../recipe.service';
   styleUrls: ['./recipe-detail.component.css']
 })
 export class RecipeDetailComponent implements OnInit {
-  @Input() recipe: Recipe;
+  recipe: Recipe;
+  id: number;
 
-  constructor(private recipeService: RecipeService) { }
+  // we inject ActivatedRoute so we can get parameters passed through the router like
+  // 'localhost:4200/recipes/id'.  To get this id, we can use ActivatedRoute and then
+  // call recipe service to fetch that recipe.  That way our template will be able to
+  // continue to use property bindings on recipe property.
+  constructor(private recipeService: RecipeService
+    , private route: ActivatedRoute
+    , private router: Router) { }
 
   ngOnInit(): void {
+    // now that we got the ActivatedRoute injected we can use it to get the id passed
+    // in by the route.  We can do it in 2 ways as explained before:
+    // 1. using snapshot which only works first time this component is loaded but it
+    //    will not work if this id is changing during the time component has already
+    //    been loaded.  This howeever will not work since our recipes list is on the
+    //    left and recipe detail on the right so we are able to change this id by
+    //    selecting another recipe on the left in order to load another recipe.
+    //const id = this.route.snapshot.params['id'];
+    // 2. using params observable which subscribes to a callback to get the id.  With
+    //    that we can react no any changes and load different recipe details.
+    this.route.params
+      .subscribe(
+        (params: Params) => {
+          this.id = +params['id'];
+          this.recipe = this.recipeService.getRecipe(this.id);
+        });
   }
 
   onAddToShoppingList() {
@@ -21,5 +45,14 @@ export class RecipeDetailComponent implements OnInit {
     // decision we have to make, there is more than one way of doing it.
     // here we will access reicpe service to do this funtionality.
     this.recipeService.addIngredientsToShoppingList(this.recipe.ingredients);
+  }
+
+  onEditRecipe() {
+    // Note that we dont need to provide id here as router will take care of that.
+    this.router.navigate(['edit'], { relativeTo: this.route });
+
+    // Here we deliberately construct path that also provides ID but again, this is
+    // just to demonstrate and not needed at all.
+    //this.router.navigate(['../', this.id, 'edit'], { relativeTo: this.route }); //localhost:4200/recipes/1/edit
   }
 }
