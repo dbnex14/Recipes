@@ -32,4 +32,11 @@ export class ShoppingListComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
+  onEditItem(index: number) {
+    // Nowe we need to get this index into the shopping-edit component
+    // because that is where we are editing.  So, we added Subject in our
+    // ShoppingListService which we have injected here already and emit this
+    // value so we can listen to it some other place like in shopping-edit component.
+    this.slService.startedEditing.next(index);
+  }
 }

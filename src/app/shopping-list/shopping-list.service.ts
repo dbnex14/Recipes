@@ -3,7 +3,8 @@ import { Subject } from 'rxjs';
 
 export class ShoppingListService {
     ingredientChanged = new Subject<Ingredient[]>(); // we changed this from EventEmitter to Subject
-
+    startedEditing = new Subject<number>();
+    
     private ingredients: Ingredient[] = [
         new Ingredient('Apples', 5),
         new Ingredient('Tomatoes', 10)
