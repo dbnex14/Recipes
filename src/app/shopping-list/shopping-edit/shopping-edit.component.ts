@@ -65,6 +65,15 @@ export class ShoppingEditComponent implements OnInit, OnDestroy {
     form.reset();
   }
 
+  onDelete() {
+    // we need to let service know to remove one item in array
+    // This however will throw an error if we click Delete without loading an item.
+    // so we add ngIf in template to display Delete button only if in editMode.
+    this.slService.deleteIngredient(this.editeItemIndex);
+    // and we also need to call onClear to clear form.
+    this.onClear();
+  }
+
   onClear() {
     this.shoppingListForm.reset();
     this.editMode = false;
