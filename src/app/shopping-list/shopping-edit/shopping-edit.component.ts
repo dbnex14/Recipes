@@ -51,11 +51,17 @@ export class ShoppingEditComponent implements OnInit, OnDestroy {
 
   // We are receiving reference to NgForm, so this is template-driven approach.
   // This way, we can get references to our ngModel marked fields in the template.
-  onAddItem(form: NgForm) {
+  onSubmit(form: NgForm) {
     const value = form.value;
     // now we can get access to ngModel marked input fields name and amount in 
     // template.  These are the names we gave to these 2 fields.
     const newIngredient = new Ingredient(value.name, value.amount);
-    this.slService.addIngredient(newIngredient);
+    if (this.editMode) {
+      this.slService.updateIngredient(this.editeItemIndex, newIngredient);
+    } else {
+      this.slService.addIngredient(newIngredient);
+    }
+    this.editMode = false; //reset to non-edit mode
+    form.reset();
   }
 }

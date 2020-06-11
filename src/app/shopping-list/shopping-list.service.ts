@@ -44,4 +44,9 @@ export class ShoppingListService {
         // Since we changed this to use Subject, we use next() instead of emit()
         this.ingredientChanged.next(this.ingredients.slice());
     }
+
+    updateIngredient(index: number, newIngredient: Ingredient) {
+        this.ingredients[index] = newIngredient;
+        this.ingredientChanged.next(this.ingredients.slice());
+    }
 }
