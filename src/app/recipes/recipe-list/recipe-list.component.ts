@@ -21,7 +21,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   ngOnInit() {
     // here we subscribe to recipeChanged Subject emited from recipe.service
     // in order to update UI when user adds new or modifies existing recipe.
-    this.recipeService.recipeChanged
+    this.subscription = this.recipeService.recipeChanged
       .subscribe(
         (recipes: Recipe[]) => {
           this.recipes = recipes;
@@ -31,7 +31,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.recipeService.recipeChanged.unsubscribe();
+    this.subscription.unsubscribe();
   }
 
   onNewRecipe() {
