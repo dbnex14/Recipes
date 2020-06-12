@@ -2,9 +2,15 @@ import { Recipe } from './recipe.model';
 import { Ingredient } from '../shared/ingredient.model';
 import { ShoppingListService } from '../shopping-list/shopping-list.service';
 import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 
 @Injectable()
 export class RecipeService {
+    // In order to update UI once user adds or edit recipe, we need to subscribe
+    // to Subject event we emit using next() each time we change recipe.  We will
+    // subscribe to this Subject in the recipe-list component which shows our
+    // recipes on the left.
+    recipeChanged = new Subject<Recipe[]>();
 
     private recipes: Recipe[] = [
         new Recipe(
@@ -53,5 +59,15 @@ export class RecipeService {
         // pass them to shopping-list service; hence, we make this service
         // injectable so we can inject shopping-list service.
         this.slService.addIngredients(ingredients);
+    }
+
+    addRecipe(recipe: Recipe){
+        this.recipes.push(recipe);
+        this.recipeChanged.next(this.recipes.slice()); // emit changes
+    }
+
+    updateRecipe(index: number, newRecipe: Recipe) {
+        this.recipes[index] = newRecipe;
+        this.recipeChanged.next(this.recipes.slice()); // emit changes
     }
 }

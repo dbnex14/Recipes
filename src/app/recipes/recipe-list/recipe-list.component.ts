@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Recipe } from '../recipe.model';
 import { RecipeService } from '../recipe.service';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -8,7 +8,7 @@ import { Router, ActivatedRoute } from '@angular/router';
   templateUrl: './recipe-list.component.html',
   styleUrls: ['./recipe-list.component.css']
 })
-export class RecipeListComponent implements OnInit {
+export class RecipeListComponent implements OnInit, OnDestroy {
   recipes: Recipe[];
 
   constructor(private recipeService: RecipeService
@@ -16,7 +16,19 @@ export class RecipeListComponent implements OnInit {
     , private route: ActivatedRoute) { }
 
   ngOnInit() {
+    // here we subscribe to recipeChanged Subject emited from recipe.service
+    // in order to update UI when user adds new or modifies existing recipe.
+    this.recipeService.recipeChanged
+      .subscribe(
+        (recipes: Recipe[]) => {
+          this.recipes = recipes;
+        }
+      );
     this.recipes = this.recipeService.getRecipes();
+  }
+
+  ngOnDestroy(): void {
+    this.recipeService.recipeChanged.unsubscribe();
   }
 
   onNewRecipe() {
