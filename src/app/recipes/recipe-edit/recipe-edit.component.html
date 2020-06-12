@@ -49,18 +49,29 @@
                     </div>
                 </div>
             </div>
+            <!-- here we keep ingredients for a recipe so we bind the wrapping
+            <div> element with formArrayName='ingredients' since ingredients is
+            the name of our array of ingredients in the ts code.-->
             <div class="row">
-                <div class="col-xs-12">
-                    <div class="row">
+                <div class="col-xs-12" formArrayName="ingredients">
+                    <!-- each control is going to be a row, so on wrapping row,
+                    we place formGroupName and property bind it to the index of 
+                    our ingredient in the recipeForm ingredients array of controls.-->
+                    <div 
+                        class="row"
+                        *ngFor="let ingredientControl of formControls; let i = index"
+                        [formGroupName]="i">
                         <div class="col-xs-8">
                             <input
                                 type="text"
-                                class="form-control">
+                                class="form-control"
+                                formControlName="name">
                         </div>
                         <div class="col-xs-2">
                             <input
-                                type="text"
-                                class="form-control">
+                                type="number"
+                                class="form-control"
+                                [formControlName]="'amount'">
                         </div>
                         <div class="col-xs-2">
                             <button class="btn btn-danger">X</button>
