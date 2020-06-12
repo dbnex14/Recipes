@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { FormGroup, FormControl, FormArray, Validators } from '@angular/forms';
 import { RecipeService } from '../recipe.service';
-import { Recipe } from '../recipe.model';
 
 @Component({
   selector: 'app-recipe-edit',
@@ -15,7 +14,8 @@ export class RecipeEditComponent implements OnInit {
   recipeForm: FormGroup; // so reactive approach here
 
   constructor(private route: ActivatedRoute,
-    private recipeService: RecipeService) { }
+    private recipeService: RecipeService,
+    private router: Router) { }
 
   // getter to retrieve controls in form generated using reactie approach
   get formControls() {
@@ -48,6 +48,8 @@ export class RecipeEditComponent implements OnInit {
       //this.recipeService.addRecipe(newRecipe);
       this.recipeService.addRecipe(this.recipeForm.value);
     }
+    // we are done at this point so navigate away by call to cancel button
+    this.onCancel();
   }
 
   private initForm() {
@@ -101,5 +103,10 @@ export class RecipeEditComponent implements OnInit {
         ])
       })
     )
+  }
+
+  onCancel() {
+    // navigate away
+    this.router.navigate(['../'], {relativeTo: this.route});
   }
 }
