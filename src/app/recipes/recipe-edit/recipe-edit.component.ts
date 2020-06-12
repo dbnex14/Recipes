@@ -69,4 +69,18 @@ export class RecipeEditComponent implements OnInit {
       'ingredients': recipeIngredients
     });
   }
+
+  onAddIngredient() {
+    // In order to add new ingredient we have to access 'ingredients' array from
+    // our reactive approach generated form but Angular does not know its type is
+    // of FormArray so we have to explicitly convert it and then push onto it new
+    // FormGroup with name and amount FormControls.  Note that we dont provide any
+    // values to them since user is supposed to enter then.
+    (<FormArray>this.recipeForm.get('ingredients')).push(
+      new FormGroup({
+        'name': new FormControl(),
+        'amount': new FormControl()
+      })
+    )
+  }
 }
