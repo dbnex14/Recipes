@@ -12,36 +12,42 @@ export class RecipeService {
     // subscribe to this Subject in the recipe-list component which shows our
     // recipes on the left.
     recipeChanged = new Subject<Recipe[]>();
+    private recipes: Recipe[] = [];  // we no longer need dummy data, it is in Firebase now
 
-    private recipes: Recipe[] = [
-        new Recipe(
-            'Noodles'
-            , 'Fetuchinnies'
-            , 'https://food.fnr.sndimg.com/content/dam/images/food/fullset/2018/9/26/0/FNK_Tuscan-Chicken-Skillet_H2_s4x3.jpg.rend.hgtvcom.826.620.suffix/1537973085542.jpeg'
-            , [
-                new Ingredient('Fetuchinni Noodles', 1),
-                new Ingredient('Chicked bits', 6),
-                new Ingredient('Spinach', 2)
-            ]
-        ),
-        new Recipe(
-            'Garlick Bunns'
-            , 'Buns'
-            , 'https://149366112.v2.pressablecdn.com/wp-content/uploads/2020/04/img_4211-2-768x768-1.jpg'
-            , [
-                new Ingredient('Buns', 2),
-                new Ingredient('Garlic', 1),
-                new Ingredient('Salt', 1),
-                new Ingredient('Oregano', 1),
-                new Ingredient('Olive Oil', 1)
-            ]
-        )
-    ];
+    // private recipes: Recipe[] = [
+    //     new Recipe(
+    //         'Noodles'
+    //         , 'Fetuchinnies'
+    //         , 'https://food.fnr.sndimg.com/content/dam/images/food/fullset/2018/9/26/0/FNK_Tuscan-Chicken-Skillet_H2_s4x3.jpg.rend.hgtvcom.826.620.suffix/1537973085542.jpeg'
+    //         , [
+    //             new Ingredient('Fetuchinni Noodles', 1),
+    //             new Ingredient('Chicked bits', 6),
+    //             new Ingredient('Spinach', 2)
+    //         ]
+    //     ),
+    //     new Recipe(
+    //         'Garlick Bunns'
+    //         , 'Buns'
+    //         , 'https://149366112.v2.pressablecdn.com/wp-content/uploads/2020/04/img_4211-2-768x768-1.jpg'
+    //         , [
+    //             new Ingredient('Buns', 2),
+    //             new Ingredient('Garlic', 1),
+    //             new Ingredient('Salt', 1),
+    //             new Ingredient('Oregano', 1),
+    //             new Ingredient('Olive Oil', 1)
+    //         ]
+    //     )
+    // ];
 
     constructor(private slService: ShoppingListService) { }
 
     getRecipes() {
         return this.recipes.slice();
+    }
+
+    setRecipes(recipes: Recipe[]) {
+        this.recipes = recipes;
+        this.recipeChanged.next(this.recipes.slice());
     }
 
     getRecipe(id: number) {
