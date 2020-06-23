@@ -11,10 +11,13 @@ export class HeaderComponent {
   constructor(private dataStorageService: DataStorageService) {}
 
   onSaveData() {
+    console.log("onSaveData called");
     this.dataStorageService.storeRecipes();
   }
 
   onFetchData() {
-    this.dataStorageService.fetchRecipes();
+    // Note that if you dont care about the Response, you dont even have to 
+    // pass function to subscribe method.
+    this.dataStorageService.fetchRecipes().subscribe();
   }
 }

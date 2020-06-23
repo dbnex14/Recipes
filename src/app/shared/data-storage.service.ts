@@ -2,12 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RecipeService } from '../recipes/recipe.service';
 import { Recipe } from '../recipes/recipe.model';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 
 @Injectable({providedIn: 'root'})
 export class DataStorageService {
-    constructor(private httpClient: HttpClient,
-        private recipeService: RecipeService) {}
+    constructor(private httpClient: HttpClient, private recipeService: RecipeService) {}
 
     storeRecipes() {
         // Use injected recipeService to get recipes and then use httpClient
@@ -53,14 +52,29 @@ export class DataStorageService {
                         ...recipe, 
                         ingredients: recipe.ingredients ? recipe.ingredients : []};
                 });
-            }))
-            .subscribe(response => {
-                console.log(response);
-                // response is Recipe[] but Angular does not know that, so we use
-                // get<Recipe[]> above to transform response we got into Recipe[].  Of
-                // course, this means our returned response must be an array of recipes
-                // which in this case is the case.
-                this.recipeService.setRecipes(response); 
-            });
+            }),
+            // The rxjs tap operator allows us to execute some code here without
+            // altering the data that is funneled through the response.  So, here
+            // indeed we will get recipes array so we just call setRecipes() from
+            // here instead of from subscribe below.  So, we now can remove 
+            // the subscribe() call below.
+            tap(recipes => {
+                // so we access the data in response as we still want to set the
+                // recipes here in recipes service but we dont want to subscribe
+                // here as we want our RecipeResolverService to do that for us so
+                // we can guard the routes and prevent error when we say refresh
+                // on recipe detail page without first loading recipes from the 
+                // Firebase backend.
+                this.recipeService.setRecipes(recipes);
+            })
+        )
+            // .subscribe(response => {
+            //     console.log(response);
+            //     // response is Recipe[] but Angular does not know that, so we use
+            //     // get<Recipe[]> above to transform response we got into Recipe[].  Of
+            //     // course, this means our returned response must be an array of recipes
+            //     // which in this case is the case.
+            //     this.recipeService.setRecipes(response); 
+            // });
     }
 }

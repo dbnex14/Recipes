@@ -5,14 +5,18 @@ import { ShoppingListComponent } from './shopping-list/shopping-list.component';
 import { RecipeStartComponent } from './recipes/recipe-start/recipe-start.component';
 import { RecipeDetailComponent } from './recipes/recipe-detail/recipe-detail.component';
 import { RecipeEditComponent } from './recipes/recipe-edit/recipe-edit.component';
+import { RecipeResolverService } from './recipes/recipes-resolver.service';
 
 const appRoutes: Routes = [
     { path: '', redirectTo: '/recipes', pathMatch: 'full' }, // if user does not provide route, redirect to recipes
     { path: 'recipes', component: RecipesComponent, children: [
         { path: '', component: RecipeStartComponent },
         { path: 'new', component: RecipeEditComponent }, // this must be before one with :id below
-        { path: ':id', component: RecipeDetailComponent },
-        { path: ':id/edit', component: RecipeEditComponent },
+        // below two routes need id so we add resolver to them to make sure that
+        // the recipe with id is loaded  indeed to avoid errors 
+        // if user is on it and hits refresh
+        { path: ':id', component: RecipeDetailComponent, resolve: [RecipeResolverService] },
+        { path: ':id/edit', component: RecipeEditComponent, resolve: [RecipeResolverService]  },
     ]}, //domain/recipes
     { path: 'shopping-list', component: ShoppingListComponent }, // domain/shoppinglist
 ];
