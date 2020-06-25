@@ -46,6 +46,31 @@ export class AuthService {
         );
     }
 
+    autologin() {
+        // auto logs in user when app restarts, like in case user reloads browser
+        const userData: {
+            email: string;
+            id: string;
+            _token: string;
+            _tokenExpirationDate: string;
+        }= JSON.parse(localStorage.getItem('userData'));
+        if (!userData) {
+            return;  // user must login by themselves
+        }
+
+        // now create User object out of this userData java-script object
+        const loadedUser = new User(
+            userData.email, 
+            userData.id, 
+            userData._token, 
+            new Date(userData._tokenExpirationDate)
+        );
+        // now we have access to User's methods and properties as well since true User object
+        if (loadedUser.token) {
+            this.user.next(loadedUser); // emit new user
+        }
+    }
+
     login(email: string, password: string) {
         // like above, we return this observable here only and subscirbe elsewhere.
         return this.httpClient.post<AuthResponseData>(
@@ -73,6 +98,7 @@ export class AuthService {
             new Date().getTime() + expiresIn * 1000);
         const user = new User(email, userId, token, expirationDate);
         this.user.next(user);
+        localStorage.setItem('userData', JSON.stringify(user));
     }
 
     private handleError(errorRes: HttpErrorResponse) {
