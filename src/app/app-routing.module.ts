@@ -7,18 +7,24 @@ import { RecipeDetailComponent } from './recipes/recipe-detail/recipe-detail.com
 import { RecipeEditComponent } from './recipes/recipe-edit/recipe-edit.component';
 import { RecipeResolverService } from './recipes/recipes-resolver.service';
 import { AuthComponent } from './auth/auth.component';
+import { AuthGuardService } from './auth/auth-guard.service';
 
 const appRoutes: Routes = [
     { path: '', redirectTo: '/recipes', pathMatch: 'full' }, // if user does not provide route, redirect to recipes
-    { path: 'recipes', component: RecipesComponent, children: [
-        { path: '', component: RecipeStartComponent },
-        { path: 'new', component: RecipeEditComponent }, // this must be before one with :id below
-        // below two routes need id so we add resolver to them to make sure that
-        // the recipe with id is loaded  indeed to avoid errors 
-        // if user is on it and hits refresh
-        { path: ':id', component: RecipeDetailComponent, resolve: [RecipeResolverService] },
-        { path: ':id/edit', component: RecipeEditComponent, resolve: [RecipeResolverService]  },
-    ]}, //domain/recipes
+    { 
+        path: 'recipes', 
+        component: RecipesComponent, 
+        canActivate: [AuthGuardService],
+        children: [
+            { path: '', component: RecipeStartComponent },
+            { path: 'new', component: RecipeEditComponent }, // this must be before one with :id below
+            // below two routes need id so we add resolver to them to make sure that
+            // the recipe with id is loaded  indeed to avoid errors 
+            // if user is on it and hits refresh
+            { path: ':id', component: RecipeDetailComponent, resolve: [RecipeResolverService] },
+            { path: ':id/edit', component: RecipeEditComponent, resolve: [RecipeResolverService]  },
+        ]
+    }, //domain/recipes
     { path: 'shopping-list', component: ShoppingListComponent }, // domain/shoppinglist
     { path: 'auth', component: AuthComponent }
 ];
