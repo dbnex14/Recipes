@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { AuthService } from './auth.service';
-import { FindValueSubscriber } from 'rxjs/internal/operators/find';
-import { takeLast } from 'rxjs/operators';
+import { AuthService, AuthResponseData } from './auth.service';
+import { Observable } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-auth',
@@ -13,37 +13,41 @@ export class AuthComponent {
     isLoading = false; // flag when form should show, same for spinner
     error: string = null;
 
-    constructor(private authService: AuthService) {}
+    constructor(private authService: AuthService, private router: Router) {}
 
     onSwitchMode() {
         this.isLoginMode = !this.isLoginMode;
     }
 
     onSubmit(form: NgForm) {
-        if (!form.value) {
+        if (!form.valid) {
             return;
         }
-
-        console.log(form.value);
         const email = form.value.email;
         const password = form.value.password;
 
-        this.isLoading = true;  
+        let authObs: Observable<AuthResponseData>;
+
+        this.isLoading = true;
+
         if (this.isLoginMode) {
-            //...
+            authObs = this.authService.login(email, password);
         } else {
-            this.authService.signup(email, password)
-                .subscribe(response => {  // arrow function to precess response
-                    console.log(response);
-                    this.isLoading = false;
-                },
-                errorMessage => { // arrow function to handle error
-                    console.log(errorMessage);
-                    this.error = errorMessage;
-                    this.isLoading = false;
-                }
-            );
+            authObs = this.authService.signup(email, password);
         }
+
+        authObs.subscribe(
+            resData => {
+                console.log(resData);
+                this.isLoading = false;
+                this.router.navigate(['/recipes']);
+            },
+            errorMessage => {
+                console.log(errorMessage);
+                this.error = errorMessage;
+                this.isLoading = false;
+            }
+        );
 
         form.reset();
     }
