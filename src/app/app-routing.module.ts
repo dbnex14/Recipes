@@ -1,9 +1,24 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { AuthComponent } from './auth/auth.component';
 
 const appRoutes: Routes = [
-    { path: '', redirectTo: '/recipes', pathMatch: 'full' }, // if user does not provide route, redirect to recipes
+    { path: '', redirectTo: '/recipes', pathMatch: 'full' },
+    // we add this route back to support Lazy Loading of Recipes route using an
+    // older syntax with #ModuleName but in newer versions of Angular, this syntax
+    // could even fail so we provide it here as commented out and it is working fine
+    // in Angular 9 but below we provide newer syntax using annonymous functions and
+    // then promisse.
+    //{ path: 'recipes', loadChildren: './recipes/recipes.module#RecipesModule' }
+    // Here is same as above but using new syntax with anonymous arrow function and then
+    // promisse.  The anonymous function below calls import() to which we pass the path 
+    // to the module to load, in our case recipes.module.  And we dont use # then to 
+    // id the module but instead import results promise then to which we pass 
+    // another anonymous function that receives module we loaded with iport() call 
+    // and on it we extract our RecipesModule.
+    { 
+        path: 'recipes', 
+        loadChildren: () => import('./recipes/recipes.module').then(m => m.RecipesModule) 
+    }
     // moved into recipes-routing.module
     // { 
     //     path: 'recipes', 
@@ -21,7 +36,8 @@ const appRoutes: Routes = [
     // }, //domain/recipes
     // moved into shopping-list-routing.module
     //{ path: 'shopping-list', component: ShoppingListComponent }, // domain/shoppinglist
-    { path: 'auth', component: AuthComponent }
+    // moved to AuthModule imports
+    //{ path: 'auth', component: AuthComponent }
 ];
 
 // make it Angular module class by @NgModule
