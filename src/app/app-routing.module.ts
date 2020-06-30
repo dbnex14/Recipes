@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { Routes, RouterModule, PreloadAllModules } from '@angular/router';
 
 const appRoutes: Routes = [
     { path: '', redirectTo: '/recipes', pathMatch: 'full' },
@@ -18,6 +18,14 @@ const appRoutes: Routes = [
     { 
         path: 'recipes', 
         loadChildren: () => import('./recipes/recipes.module').then(m => m.RecipesModule) 
+    },
+    {
+        path: 'shopping-list',
+        loadChildren: () => import('./shopping-list/shopping-list.module').then(m => m.ShoppingListModule)
+    },
+    { 
+        path: 'auth', 
+        loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule)
     }
     // moved into recipes-routing.module
     // { 
@@ -42,13 +50,11 @@ const appRoutes: Routes = [
 
 // make it Angular module class by @NgModule
 @NgModule({
-    imports: [RouterModule.forRoot(appRoutes)],
+    imports: [RouterModule.forRoot(appRoutes, {preloadingStrategy: PreloadAllModules})],
     // since we are here in another module, we need to export our
     // configured router into our main or app.module so it is available
     // there for Angular since we are here in our own module we added.
     // Then we need to omport this module in app.module imports array.
     exports: [RouterModule]
 })
-export class AppRoutingModule {
-
-}
+export class AppRoutingModule {}
