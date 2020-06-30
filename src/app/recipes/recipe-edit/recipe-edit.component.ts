@@ -18,7 +18,7 @@ export class RecipeEditComponent implements OnInit {
     private router: Router) { }
 
   // getter to retrieve controls in form generated using reactie approach
-  get formControls() {
+  get ingredietsControls() {
     return (this.recipeForm.get('ingredients') as FormArray).controls;
   }
 

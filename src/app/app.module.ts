@@ -20,16 +20,17 @@ import { CoreModule } from './core.module';
     SharedModule,
     CoreModule
   ],
-  // providers: [
-  //   // moved to CoreModule
-  //   // ShoppingListService, 
-  //   // RecipeService, 
-  //   // {
-  //   //   provide: HTTP_INTERCEPTORS, 
-  //   //   useClass: AuthInterceptorService,
-  //   //   multi: true
-  //   // }
-  // ],
+  providers: [
+    //LoggingService
+    // moved to CoreModule
+    // ShoppingListService, 
+    // RecipeService, 
+    // {
+    //   provide: HTTP_INTERCEPTORS, 
+    //   useClass: AuthInterceptorService,
+    //   multi: true
+    // }
+  ],
   bootstrap: [AppComponent]
   // moved to shared module
   // entryComponents: [
