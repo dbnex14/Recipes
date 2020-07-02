@@ -4,6 +4,7 @@ import { catchError, tap } from 'rxjs/operators';
 import { throwError, Subject, BehaviorSubject } from 'rxjs';
 import { User } from './user.model';
 import { Router } from '@angular/router';
+import { environment } from 'src/environments/environment';
 
 // We export is since now we will also use it in AuthComponent, not just here.
 export interface AuthResponseData {
@@ -30,7 +31,7 @@ export class AuthService {
         // request or in case of error show error message.  Or we might want to show loading indicator.
         return this.httpClient
             .post<AuthResponseData>(
-                'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCtuGW4uSwIHoFWKtxY9SPr1RFhPS_r4yg',
+                'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + environment.firebaseAPIKey,
                 {
                     // the email, password and returnSecureToken are requeed by the Firebase Restful Auth API, check
                     // https://firebase.google.com/docs/reference/rest/auth#section-create-email-password
@@ -84,7 +85,7 @@ export class AuthService {
     login(email: string, password: string) {
         // like above, we return this observable here only and subscirbe elsewhere.
         return this.httpClient.post<AuthResponseData>(
-            'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyCtuGW4uSwIHoFWKtxY9SPr1RFhPS_r4yg',
+            'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + environment.firebaseAPIKey,
             {
                 email: email,
                 password: password,
