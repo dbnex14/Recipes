@@ -4,6 +4,8 @@ import { ShoppingListService } from './shopping-list.service';
 import { Subscription, Observable } from 'rxjs';
 import { LoggingService } from '../logging.service';
 import { Store } from '@ngrx/store';
+import * as fromShoppingListReducer from '../shopping-list/store/shopping-list.reducer';
+import * as ShoppingListActions from './store/shopping-list.actions';
 
 @Component({
   selector: 'app-shopping-list',
@@ -17,10 +19,18 @@ export class ShoppingListComponent implements OnInit, OnDestroy {
   constructor(
     private slService: ShoppingListService, 
     private loggingService: LoggingService,
-    private store: Store<{ shoppingList: { ingredients: Ingredient[] } }>) { }
+    private store: Store<fromShoppingListReducer.AppState>) { }
 
   ngOnInit() {
-    this.ingredients = this.store.select('shoppingList'); //use NgRx store instead of service
+    // Use NgRx store instead of service below but select() returns observable, so we must
+    // change ingredients type from array to above and then we have to change ngFor in template
+    // since ngFor works only on arrays.  For that, we use async pipe in template to get result
+    // of this observable as soon as it is available.
+    this.ingredients = this.store.select('shoppingList'); 
+    // Also note that if you need to use this some other place where you cannot use async pipe,
+    // you can subscribe to select() since it returns an observable.  NgRx should auto unsubscribe
+    // if for you but Max recommends storing reference and doing it manually.
+    //this.subscription = this.store.select('shoppingList').subscribe(...);
 
     // Below is using service to get list of ingredients and to subscribe to their changes.
     // But we commented that out since now for that we use NGRX store above.
@@ -48,6 +58,7 @@ export class ShoppingListComponent implements OnInit, OnDestroy {
     // because that is where we are editing.  So, we added Subject in our
     // ShoppingListService which we have injected here already and emit this
     // value so we can listen to it some other place like in shopping-edit component.
-    this.slService.startedEditing.next(index);
+    //this.slService.startedEditing.next(index);  //use service
+    this.store.dispatch(new ShoppingListActions.StartEditIngredientAction(index)); // use ngrx
   }
 }

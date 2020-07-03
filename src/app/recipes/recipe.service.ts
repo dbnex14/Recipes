@@ -1,9 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
+import { Store } from '@ngrx/store';
 
 import { Recipe } from './recipe.model';
 import { Ingredient } from '../shared/ingredient.model';
 import { ShoppingListService } from '../shopping-list/shopping-list.service';
+import * as ShoppingListActions from '../shopping-list/store/shopping-list.actions';
+import * as fromShoppingListReducer from '../shopping-list/store/shopping-list.reducer';
 
 @Injectable()
 export class RecipeService {
@@ -39,7 +42,9 @@ export class RecipeService {
     //     )
     // ];
 
-    constructor(private slService: ShoppingListService) { }
+    constructor(
+        private slService: ShoppingListService,
+        private store: Store<fromShoppingListReducer.AppState>) { }
 
     getRecipes() {
         return this.recipes.slice();
@@ -65,7 +70,9 @@ export class RecipeService {
         // so we pass ingredients from recipe-detail and now we need to
         // pass them to shopping-list service; hence, we make this service
         // injectable so we can inject shopping-list service.
-        this.slService.addIngredients(ingredients);
+        //this.slService.addIngredients(ingredients);
+        // Use the NGRX store instead
+        this.store.dispatch(new ShoppingListActions.AddIngredientsAction(ingredients));
     }
 
     addRecipe(recipe: Recipe){
