@@ -3,6 +3,9 @@ import { Subscription } from 'rxjs';
 
 import { DataStorageService } from '../shared/data-storage.service';
 import { AuthService } from '../auth/auth.service';
+import { Store } from '@ngrx/store';
+import * as fromApp from '../store/app.reducer';
+import { map } from 'rxjs/operators';
 
 
 @Component({
@@ -14,18 +17,25 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isAuthenticated = false;
   collapsed = true;
 
-  constructor(private dataStorageService: DataStorageService, private authService: AuthService) {}
+  constructor(
+    private dataStorageService: DataStorageService, 
+    private authService: AuthService,
+    private store: Store<fromApp.AppState>) {}
 
   ngOnInit(): void {
-    this.userSubscription = this.authService.user.subscribe(user => {
-      this.isAuthenticated = !!user; // same as !user ? false : true;
-      console.log(!user);
-      console.log(!!user);
-    });
+    //this.userSubscription = this.authService.user.subscribe(user => {
+      this.userSubscription = this.store
+        .select('auth')
+        .pipe(map(authState => authState.user))
+        .subscribe(user => {
+            this.isAuthenticated = !!user; // same as !user ? false : true;
+            console.log(!user);
+            console.log(!!user);
+        });
   }
 
   ngOnDestroy(): void {
-    this.authService.user.unsubscribe();
+    this.userSubscription.unsubscribe();
   }
 
   onSaveData() {

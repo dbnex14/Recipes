@@ -1,10 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, tap } from 'rxjs/operators';
-import { throwError, Subject, BehaviorSubject } from 'rxjs';
-import { User } from './user.model';
+import { throwError, BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
+import { Store } from '@ngrx/store';
+
+import { User } from './user.model';
+import * as fromApp from '../store/app.reducer';
+import * as fromAuthActions from './store/auth.actions';
 
 // We export is since now we will also use it in AuthComponent, not just here.
 export interface AuthResponseData {
@@ -19,10 +23,13 @@ export interface AuthResponseData {
 
 @Injectable({providedIn: 'root'})
 export class AuthService {
-    user = new BehaviorSubject<User>(null);
+    //user = new BehaviorSubject<User>(null);
     private tokenExpirationTimer: any;
     
-    constructor(private httpClient: HttpClient, private router: Router) {}
+    constructor(
+        private httpClient: HttpClient, 
+        private router: Router,
+        private store: Store<fromApp.AppState>) {}
 
     // sends request to signup url https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=[API_KEY]
     // we get from Firebase
@@ -69,7 +76,15 @@ export class AuthService {
         );
         // now we have access to User's methods and properties as well since true User object
         if (loadedUser.token) {
-            this.user.next(loadedUser); // emit new user
+            //this.user.next(loadedUser); // emit new user
+            this.store.dispatch(new fromAuthActions.LoginAction(
+                {
+                    email: loadedUser.email,
+                    userId: loadedUser.id,
+                    token: loadedUser.token,
+                    expirationDate: new Date(userData._tokenExpirationDate)
+                }
+            ));
             // calculate expiration : future date in milliseconds - current date in milliseconds
             const expirationDuration = new Date(userData._tokenExpirationDate).getTime() - new Date().getTime();
             this.autologout(expirationDuration);
@@ -100,7 +115,8 @@ export class AuthService {
     }
 
     logout() {
-        this.user.next(null);
+        //this.user.next(null); // emit 
+        this.store.dispatch(new fromAuthActions.LogoutAction()); //dispatch reducer action
         this.router.navigate(['/auth']);
         localStorage.removeItem('userData');
         if (this.tokenExpirationTimer) {
@@ -113,7 +129,15 @@ export class AuthService {
         const expirationDate = new Date(
             new Date().getTime() + expiresInMS * 1000);
         const user = new User(email, userId, token, expirationDate);
-        this.user.next(user);
+        //this.user.next(user);
+        this.store.dispatch(new fromAuthActions.LoginAction(
+            {
+                email: email,
+                userId: userId,
+                token: token,
+                expirationDate: expirationDate
+            }
+        ));
         this.autologout(expiresInMS * 1000);
         localStorage.setItem('userData', JSON.stringify(user));
     }
