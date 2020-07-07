@@ -1,11 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { map } from 'rxjs/operators';
 
 import { DataStorageService } from '../shared/data-storage.service';
 import { AuthService } from '../auth/auth.service';
-import { Store } from '@ngrx/store';
 import * as fromApp from '../store/app.reducer';
-import { map } from 'rxjs/operators';
+import * as fromAuthActions from '../auth/store/auth.actions';
 
 
 @Component({
@@ -50,6 +51,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   onLogout() {
-    this.authService.logout();
+    //this.authService.logout();
+    this.store.dispatch(new fromAuthActions.LogoutAction());
   }
 }

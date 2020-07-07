@@ -33,27 +33,27 @@ export class AuthService {
 
     // sends request to signup url https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=[API_KEY]
     // we get from Firebase
-    signup(email: string, password: string) {
-        // We dont subscribe here but return this observable so that in authCoponent we can get information about this
-        // request or in case of error show error message.  Or we might want to show loading indicator.
-        return this.httpClient
-            .post<AuthResponseData>(
-                'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + environment.firebaseAPIKey,
-                {
-                    // the email, password and returnSecureToken are requeed by the Firebase Restful Auth API, check
-                    // https://firebase.google.com/docs/reference/rest/auth#section-create-email-password
-                    email: email,
-                    password: password,
-                    returnSecureToken: true
-                }
-        )
-        .pipe(
-            catchError(this.handleError),
-            tap(resData => {
-                this.handleAuthentication(resData.email, resData.localId, resData.idToken ,+resData.expiresIn)
-            })
-        );
-    }
+    // signup(email: string, password: string) {
+    //     // We dont subscribe here but return this observable so that in authCoponent we can get information about this
+    //     // request or in case of error show error message.  Or we might want to show loading indicator.
+    //     return this.httpClient
+    //         .post<AuthResponseData>(
+    //             'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + environment.firebaseAPIKey,
+    //             {
+    //                 // the email, password and returnSecureToken are requeed by the Firebase Restful Auth API, check
+    //                 // https://firebase.google.com/docs/reference/rest/auth#section-create-email-password
+    //                 email: email,
+    //                 password: password,
+    //                 returnSecureToken: true
+    //             }
+    //     )
+    //     .pipe(
+    //         catchError(this.handleError),
+    //         tap(resData => {
+    //             this.handleAuthentication(resData.email, resData.localId, resData.idToken ,+resData.expiresIn)
+    //         })
+    //     );
+    // }
 
     autologin() {
         // auto logs in user when app restarts, like in case user reloads browser
@@ -97,27 +97,27 @@ export class AuthService {
         }, expirationDurationMS);
     }
 
-    login(email: string, password: string) {
-        // like above, we return this observable here only and subscirbe elsewhere.
-        return this.httpClient.post<AuthResponseData>(
-            'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + environment.firebaseAPIKey,
-            {
-                email: email,
-                password: password,
-                returnSecureToken: true
-            }
-        )
-        .pipe(
-            catchError(this.handleError),
-            tap(resData => {
-                this.handleAuthentication(resData.email, resData.localId, resData.idToken ,+resData.expiresIn)
-            })); 
-    }
+    // login(email: string, password: string) {
+    //     // like above, we return this observable here only and subscirbe elsewhere.
+    //     return this.httpClient.post<AuthResponseData>(
+    //         'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + environment.firebaseAPIKey,
+    //         {
+    //             email: email,
+    //             password: password,
+    //             returnSecureToken: true
+    //         }
+    //     )
+    //     .pipe(
+    //         catchError(this.handleError),
+    //         tap(resData => {
+    //             this.handleAuthentication(resData.email, resData.localId, resData.idToken ,+resData.expiresIn)
+    //         })); 
+    // }
 
     logout() {
         //this.user.next(null); // emit 
-        this.store.dispatch(new fromAuthActions.LogoutAction()); //dispatch reducer action
-        this.router.navigate(['/auth']);
+        //this.store.dispatch(new fromAuthActions.LogoutAction()); //dispatch reducer action, now calling LogoutAction
+        //this.router.navigate(['/auth']); //moved to authRedirect effect
         localStorage.removeItem('userData');
         if (this.tokenExpirationTimer) {
             clearTimeout(this.tokenExpirationTimer); // clear timer

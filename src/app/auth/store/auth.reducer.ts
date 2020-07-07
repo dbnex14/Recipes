@@ -30,24 +30,30 @@ export function authReducer(state = initialState, action: fromAuthActions.AuthAc
                 user: user, // or just user (ts syntax simplification)
                 authError: null,
                 loading: false
-            }
+            };
         case fromAuthActions.LOGOUT:
           return {
               ...state,
               user: null
-          }
+          };
         case fromAuthActions.LOGIN_START:
+        case fromAuthActions.SIGNUP_START:
             return {
                 ...state,
                 authError: null,
                 loading: true
-            }
+            };
         case fromAuthActions.AUTHENTICATE_FAIL:
             return {
                 ...state,
                 authError: action.payload,
                 loading: false
-            }
+            };
+        case fromAuthActions.CLEAR_ERROR:
+            return {
+                ...state,
+                error: null
+            };
         default:
             return state;
     }
