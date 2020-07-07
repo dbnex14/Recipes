@@ -3,16 +3,20 @@ import * as fromAuthActions from './auth.actions';
 
 export interface State {
     user: User;
+    authError: string;
+    loading: boolean;
 }
 
 const initialState: State = {
-    user: null
+    user: null,
+    authError: null,
+    loading: false
 };
 
 export function authReducer(state = initialState, action: fromAuthActions.AuthActions) {
     console.log(state); // all actions reach all reducers
     switch (action.type) {
-        case fromAuthActions.LOGIN:
+        case fromAuthActions.AUTHENTICATE_SUCCESS:
             const user = new User(
                 action.payload.email, 
                 action.payload.userId, 
@@ -23,13 +27,27 @@ export function authReducer(state = initialState, action: fromAuthActions.AuthAc
             // the user property of initialState.
             return {
                 ...state,
-                user: user // or just user (ts syntax simplification)
+                user: user, // or just user (ts syntax simplification)
+                authError: null,
+                loading: false
             }
         case fromAuthActions.LOGOUT:
           return {
               ...state,
               user: null
           }
+        case fromAuthActions.LOGIN_START:
+            return {
+                ...state,
+                authError: null,
+                loading: true
+            }
+        case fromAuthActions.AUTHENTICATE_FAIL:
+            return {
+                ...state,
+                authError: action.payload,
+                loading: false
+            }
         default:
             return state;
     }

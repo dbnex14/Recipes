@@ -1,4 +1,4 @@
-import { Component, ComponentFactoryResolver, ViewChild, OnDestroy } from '@angular/core';
+import { Component, ComponentFactoryResolver, ViewChild, OnDestroy, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
 import { Router } from '@angular/router';
@@ -14,7 +14,7 @@ import * as fromAuthActions from '../auth/store/auth.actions';
     selector: 'app-auth',
     templateUrl: './auth.component.html'
 })
-export class AuthComponent implements OnDestroy{
+export class AuthComponent implements OnInit, OnDestroy{
     isLoginMode = true;
     isLoading = false; // flag when form should show, same for spinner
     error: string = null;
@@ -26,6 +26,16 @@ export class AuthComponent implements OnDestroy{
         private router: Router,
         private componentFactoryResolver: ComponentFactoryResolver,
         private store: Store<fromApp.AppState>) {}
+
+    ngOnInit(): void {
+        this.store.select('auth').subscribe(authState => {
+            this.isLoading = authState.loading;
+            this.error = authState.authError;
+            if (this.error) {
+                this.showErrorAlert(this.error);
+            }
+        });
+    }
 
     ngOnDestroy(): void {
         if (this.closeSubscription) {
@@ -44,9 +54,8 @@ export class AuthComponent implements OnDestroy{
         const email = form.value.email;
         const password = form.value.password;
 
-        let authObs: Observable<AuthResponseData>;
-
-        this.isLoading = true;
+        //let authObs: Observable<AuthResponseData>; //handled by ngrx actions below now
+        //this.isLoading = true; //handled by ngrx actions below now
 
         if (this.isLoginMode) {
             //authObs = this.authService.login(email, password);
@@ -54,22 +63,26 @@ export class AuthComponent implements OnDestroy{
                 new fromAuthActions.LoginStartAction({ email: email, password: password })
               );
         } else {
-            authObs = this.authService.signup(email, password);
+            //authObs = this.authService.signup(email, password);
+            this.store.dispatch(
+                new fromAuthActions.SignupStartAction({ email: email, password: password })
+            );
         }
 
-        authObs.subscribe(
-            resData => {
-                console.log(resData);
-                this.isLoading = false;
-                this.router.navigate(['/recipes']);
-            },
-            errorMessage => {
-                console.log(errorMessage);
-                this.error = errorMessage;
-                this.showErrorAlert(errorMessage);
-                this.isLoading = false;
-            }
-        );
+        // handled by ngrx actions now
+        // authObs.subscribe(
+        //     resData => {
+        //         console.log(resData);
+        //         this.isLoading = false;
+        //         this.router.navigate(['/recipes']);
+        //     },
+        //     errorMessage => {
+        //         console.log(errorMessage);
+        //         this.error = errorMessage;
+        //         this.showErrorAlert(errorMessage);
+        //         this.isLoading = false;
+        //     }
+        // );
 
         form.reset();
     }

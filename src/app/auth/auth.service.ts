@@ -77,7 +77,7 @@ export class AuthService {
         // now we have access to User's methods and properties as well since true User object
         if (loadedUser.token) {
             //this.user.next(loadedUser); // emit new user
-            this.store.dispatch(new fromAuthActions.LoginAction(
+            this.store.dispatch(new fromAuthActions.AuthenticateSuccessAction(
                 {
                     email: loadedUser.email,
                     userId: loadedUser.id,
@@ -130,7 +130,7 @@ export class AuthService {
             new Date().getTime() + expiresInMS * 1000);
         const user = new User(email, userId, token, expirationDate);
         //this.user.next(user);
-        this.store.dispatch(new fromAuthActions.LoginAction(
+        this.store.dispatch(new fromAuthActions.AuthenticateSuccessAction(
             {
                 email: email,
                 userId: userId,

@@ -1,12 +1,13 @@
 import { Actions, ofType, Effect } from '@ngrx/effects';
-import { switchMap, catchError, map } from 'rxjs/operators';
+import { switchMap, catchError, map, tap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { of } from 'rxjs';
+import { Router } from '@angular/router';
 
 import * as fromAuthActions from './auth.actions';
 import { environment } from '../../../environments/environment';
-import { of } from 'rxjs';
-import { registerLocaleData } from '@angular/common';
-import { Injectable } from '@angular/core';
+
 
 export interface AuthResponseData {
     kind: string;
@@ -18,8 +19,73 @@ export interface AuthResponseData {
     registered?: boolean;
 }
 
+const handleAuthentication = (
+    expiresIn: number, 
+    email: string, 
+    userId: string, 
+    token: string) => {
+    const expirationDate = new Date(new Date().getTime() + expiresIn * 1000);
+
+    return new fromAuthActions.AuthenticateSuccessAction({
+        email: email,
+        userId: userId,
+        token: token,
+        expirationDate: expirationDate
+    });
+};
+
+const handleError = (errorRes: any) => {
+    let errorMessage = 'An unknown error occurred!';
+    if (!errorRes.error || !errorRes.error.error) {
+      //NEVER throwError from Effect, taht makes obserbable stream die
+      return of(new fromAuthActions.AuthenticateFailAction(errorMessage));
+    }
+    switch (errorRes.error.error.message) {
+      case 'EMAIL_EXISTS':
+        errorMessage = 'This email exists already';
+        break;
+      case 'EMAIL_NOT_FOUND':
+        errorMessage = 'This email does not exist.';
+        break;
+      case 'INVALID_PASSWORD':
+        errorMessage = 'This password is not correct.';
+        break;
+    }
+    return of(new fromAuthActions.AuthenticateFailAction(errorMessage));
+};
+
 @Injectable()
 export class AuthEffects {
+    @Effect()
+    authSignup = this.actions$.pipe(
+        ofType(fromAuthActions.SIGNUP_START),
+        switchMap((signupAction: fromAuthActions.SignupStartAction) => {
+            return this.httpClient.post<AuthResponseData>(
+                'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' 
+                    + environment.firebaseAPIKey,
+                {
+                    // the email, password and returnSecureToken are requeed by the Firebase Restful Auth API, check
+                    // https://firebase.google.com/docs/reference/rest/auth#section-create-email-password
+                    email: signupAction.payload.email,
+                    password: signupAction.payload.password,
+                    returnSecureToken: true
+                }
+            )
+            .pipe(
+                map(resData => {
+                    return handleAuthentication(
+                        +resData.expiresIn, 
+                        resData.expiresIn, 
+                        resData.localId, 
+                        resData.idToken);
+                }),
+                catchError(errorRes => {
+                    return handleError(errorRes);
+                })
+            );
+        })
+    );
+
     @Effect()
     authLogin = this.actions$.pipe(
         ofType(fromAuthActions.LOGIN_START),
@@ -31,25 +97,31 @@ export class AuthEffects {
                     password: authData.payload.password,
                     returnSecureToken: true
                 }
-            ).pipe(
+            )
+            .pipe(
                 map(resData => {
-                    const expirationDate = new Date(new Date().getTime() + +resData.expiresIn * 1000);
-
-                    return of(new fromAuthActions.LoginAction({
-                        email: resData.email,
-                        userId: resData.localId,
-                        token: resData.idToken,
-                        expirationDate: expirationDate
-                    }));
+                    return handleAuthentication(
+                        +resData.expiresIn, 
+                        resData.expiresIn, 
+                        resData.localId, 
+                        resData.idToken);
                 }),
-                catchError(error => {
-                    ///... error handling code
-                    return of();
+                catchError(errorRes => {
+                    return handleError(errorRes);
                 })
             );
-        }),
-
+        })
     );
 
-    constructor(private actions$: Actions, private httpClient: HttpClient) {}
+    @Effect({dispatch: false})
+    authSuccess = this.actions$.pipe(ofType(fromAuthActions.AUTHENTICATE_SUCCESS),
+        tap(() => {
+            this.router.navigate(['/']);
+        })
+    );
+
+    constructor(
+        private actions$: Actions, 
+        private httpClient: HttpClient, 
+        private router: Router) {}
 }
