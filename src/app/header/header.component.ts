@@ -7,7 +7,7 @@ import { DataStorageService } from '../shared/data-storage.service';
 import { AuthService } from '../auth/auth.service';
 import * as fromApp from '../store/app.reducer';
 import * as fromAuthActions from '../auth/store/auth.actions';
-
+import * as fromRecipeActions from '../recipes/store/recipe.actions';
 
 @Component({
   selector: 'app-header',
@@ -47,7 +47,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   onFetchData() {
     // Note that if you dont care about the Response, you dont even have to 
     // pass function to subscribe method.
-    this.dataStorageService.fetchRecipes().subscribe();
+    //this.dataStorageService.fetchRecipes().subscribe();  //use NGRX instead
+    this.store.dispatch(new fromRecipeActions.FetchRecipesAction());
   }
 
   onLogout() {

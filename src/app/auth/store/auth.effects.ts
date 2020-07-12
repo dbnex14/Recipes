@@ -33,7 +33,8 @@ const handleAuthentication = (
         email: email,
         userId: userId,
         token: token,
-        expirationDate: expirationDate
+        expirationDate: expirationDate,
+        redirect: true
     });
 };
 
@@ -155,13 +156,15 @@ export class AuthEffects {
                     email: loadedUser.email,
                     userId: loadedUser.id,
                     token: loadedUser.token,
-                    expirationDate: new Date(userData._tokenExpirationDate)
+                    expirationDate: new Date(userData._tokenExpirationDate),
+                    redirect: false
                 })
                 // this.autologout(expirationDuration);
             }
             return { type: 'DUMMY' };
         })
     );
+
 
     @Effect({dispatch: false})
     authLogout = this.actions$.pipe(
@@ -173,12 +176,14 @@ export class AuthEffects {
         })
     );
 
-    @Effect({dispatch: false})
+    @Effect({ dispatch: false })
     authRedirect = this.actions$.pipe(
-        ofType(fromAuthActions.AUTHENTICATE_SUCCESS),
-        tap(() => {
-            this.router.navigate(['/']);
-        })
+      ofType(fromAuthActions.AUTHENTICATE_SUCCESS),
+      tap((authSuccessAction: fromAuthActions.AuthenticateSuccessAction) => {
+        if (authSuccessAction.payload.redirect) {
+          this.router.navigate(['/']);
+        }
+      })
     );
 
     constructor(

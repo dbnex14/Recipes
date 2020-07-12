@@ -1,14 +1,22 @@
 import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { Injectable } from '@angular/core';
 import { Recipe } from './recipe.model';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { DataStorageService } from '../shared/data-storage.service';
 import { RecipeService } from './recipe.service';
+import { Store } from '@ngrx/store';
+import * as fromApp from '../../app/store/app.reducer';
+import * as fromRecipeActions from '../recipes/store/recipe.actions';
+import { Actions, ofType } from '@ngrx/effects';
+import { take, map, switchMap } from 'rxjs/operators';
 
 @Injectable({providedIn: 'root'})
 export class RecipeResolverService implements Resolve<Recipe[]> {
-    constructor(private dataStorageService: DataStorageService, 
-        private recipeService: RecipeService) {}
+    constructor(
+        //private dataStorageService: DataStorageService, 
+        //private recipeService: RecipeService,
+        private store: Store<fromApp.AppState>,
+        private actions$: Actions) {}
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): 
         Recipe[] | Observable<Recipe[]> | Promise<Recipe[]> {
@@ -35,12 +43,28 @@ export class RecipeResolverService implements Resolve<Recipe[]> {
         // detail route).  For that reason, we inject recipe service and use it to
         // if we have recipes in recipe service and only fetch them if we dont.
         // Otherwise, just return recipes from recipe service.
-        const recipes = this.recipeService.getRecipes();
-        if (recipes.length === 0) {
-            return this.dataStorageService.fetchRecipes();
-        } else {
-            return recipes;
-        }
-        
+        //const recipes = this.recipeService.getRecipes();
+        // if (recipes.length === 0) {
+        //     return this.dataStorageService.fetchRecipes();
+        // } else {
+        //     return recipes;
+        // }
+        return this.store.select('recipes').pipe(
+            take(1),
+            map(recipesState => {
+              return recipesState.recipes;
+            }),
+            switchMap(recipes => {
+              if (recipes.length === 0) {
+                this.store.dispatch(new fromRecipeActions.FetchRecipesAction());
+                return this.actions$.pipe(
+                  ofType(fromRecipeActions.SET_RECIPES),
+                  take(1)
+                );
+              } else {
+                return of(recipes);
+              }
+            })
+          );
     }
 }
