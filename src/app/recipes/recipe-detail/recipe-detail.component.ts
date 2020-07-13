@@ -3,10 +3,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { map, switchMap } from 'rxjs/operators';
 import { Recipe } from '../recipe.model';
-import { RecipeService } from '../recipe.service';
+//import { RecipeService } from '../recipe.service';
 
 import * as fromApp from '../../store/app.reducer';
 import * as fromRecipeActions from '../store/recipe.actions';
+import * as fromShoppingListActions from '../../shopping-list/store/shopping-list.actions';
 
 @Component({
   selector: 'app-recipe-detail',
@@ -21,8 +22,9 @@ export class RecipeDetailComponent implements OnInit {
   // 'localhost:4200/recipes/id'.  To get this id, we can use ActivatedRoute and then
   // call recipe service to fetch that recipe.  That way our template will be able to
   // continue to use property bindings on recipe property.
-  constructor(private recipeService: RecipeService
-    , private route: ActivatedRoute
+  constructor(
+    //private recipeService: RecipeService,
+    private route: ActivatedRoute
     , private router: Router
     , private store: Store<fromApp.AppState>) { }
 
@@ -80,7 +82,8 @@ export class RecipeDetailComponent implements OnInit {
     // access recipe service which then accesses shopping list.  it is 
     // decision we have to make, there is more than one way of doing it.
     // here we will access reicpe service to do this funtionality.
-    this.recipeService.addIngredientsToShoppingList(this.recipe.ingredients);
+    //this.recipeService.addIngredientsToShoppingList(this.recipe.ingredients);
+    this.store.dispatch(new fromShoppingListActions.AddIngredientsAction(this.recipe.ingredients));
   }
 
   onEditRecipe() {
